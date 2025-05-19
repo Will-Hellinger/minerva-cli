@@ -40,11 +40,13 @@ def select_latin_course(session, schoology_url):
 def spawn_webwindow_and_login(session, schoology_url):
     print('Spawning web window...')
     webwindow = driver.get_driver('Chrome')
+    
     try:
         webwindow.get(schoology_url)
     except:
         print('Unable to load Schoology page, exiting...')
-        return None
+        return None    
+    
     print('Injecting cookies...')
     for cookie in session.cookies:
         webwindow.add_cookie({
@@ -55,14 +57,18 @@ def spawn_webwindow_and_login(session, schoology_url):
         })
     return webwindow
 
-def find_lths_latin_app(webwindow, course_url, schoology_url):
+def find_lths_latin_app(session, course_url, schoology_url):
     print('Loading course page...')
+
     try:
-        webwindow.get(course_url)
+        page = session.get(course_url)
+
+        page.raise_for_status()  # Raise an error for bad responses
     except:
         print('Unable to load course page, exiting...')
         return None
-    soup = BeautifulSoup(webwindow.page_source, 'html.parser')
+
+    soup = BeautifulSoup(page.text, 'html.parser')
     app = soup.find(string=lambda text: text and 'LTHSLatin' in text)
     if not app:
         print('Unable to find LTHSLatin app, exiting...')
@@ -129,14 +135,15 @@ def main():
         return
     
     course_url = schoology_url + "/" + section.get('link')
+    
+    schoology_app_url = find_lths_latin_app(session, course_url, schoology_url)
+
+    if not schoology_app_url:
+        return
+
     webwindow = spawn_webwindow_and_login(session, schoology_url)
 
     if not webwindow:
-        return
-    
-    schoology_app_url = find_lths_latin_app(webwindow, course_url, schoology_url)
-
-    if not schoology_app_url:
         return
     
     if not load_lths_latin_app(webwindow, schoology_app_url, lths_latin_url):
