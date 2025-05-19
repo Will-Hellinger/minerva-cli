@@ -172,3 +172,8 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+#minerva-cli specific
+data/dictionary/
+data/paradigm/
+data/hashing_key.json
