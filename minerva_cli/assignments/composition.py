@@ -2,6 +2,7 @@ import os
 import time
 import json
 import nltk
+import random
 import hashlib
 import inflect
 import selenium
@@ -189,7 +190,7 @@ def translate(word: str, language: str, dictionary: dict | None, use_base: bool 
     return language_dict.get(word.lower())
 
 
-def solve(driver: selenium.webdriver, compositions_fallback: bool, translator: Translator | None, dictionary: dict, compositions_synonyms_enabled: bool, cache_path: str | None) -> None:
+def solve(driver: selenium.webdriver, compositions_fallback: bool, translator: Translator | None, dictionary: dict, compositions_synonyms_enabled: bool, cache_path: str | None, human_mode: bool) -> None:
     """
     Solve Latin-English composition assignments.
 
@@ -399,11 +400,14 @@ def solve(driver: selenium.webdriver, compositions_fallback: bool, translator: T
                     save_file(cache_file, data)
 
                     print(f'Completed {input_number} inputs out of {total_inputs}')
+                
+                if human_mode:
+                    time.sleep(random.randint(200, 500)/100)
 
         data[english_texts[a]]['correct'] = all_answers[a]
         save_file(cache_file, data)
 
-        (latin_inputs[a]).clear()
+        latin_inputs[a].clear()
         time.sleep(.5)
 
         used_words = [] #backup repitition check
@@ -418,6 +422,8 @@ def solve(driver: selenium.webdriver, compositions_fallback: bool, translator: T
                 latin_inputs[a].send_keys(' ')
             
             used_words.append(all_answers[a][b])
+        
+        print(f"Words for Q{a+1}: {used_words}")
 
         latin_inputs[a].send_keys(Keys.ENTER)
 

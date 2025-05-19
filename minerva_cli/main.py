@@ -117,7 +117,6 @@ def main():
 
     print('Installing NLTK info complete')
 
-    print('Generating dictionary...')
     composition_dictionary_files: list[str] = glob.glob(os.path.join(data_dir, 'dictionary', '*.json'))
     composition_dictionary = composition.generate_dictionary(composition_dictionary_files)
 
@@ -151,6 +150,8 @@ def main():
     mode_watcher_thread = threading.Thread(target=mode_watcher, args=(webwindow, user))
     mode_watcher_thread.start()
 
+    human_mode: bool = False
+
     while True:
         user_input: str = input('Enter command: ').strip().lower()
 
@@ -162,13 +163,20 @@ def main():
             print('  exit - Exit the program')
             print('  help - Show this help message')
             print('  solve - Solve the current assignment')
+            print('  human - Toggle human mode')
         elif user_input == 'solve':
             if mode == 'composition':
                 print('Solving composition assignment...')
-                composition.solve(webwindow, False, None, composition_dictionary, True, cache_dir)
+                composition.solve(webwindow, False, None, composition_dictionary, True, cache_dir, human_mode)
             else:
                 print('No assignment to solve or unsupported mode.')
+        elif user_input == 'human':
+            human_mode = not human_mode
 
+            if human_mode:
+                print('Human mode enabled.')
+            else:
+                print('Human mode disabled.')
         
 
 if __name__ == '__main__':
